@@ -1,0 +1,17 @@
+* Python에서 DB 연동을 위해서는 ORM (중간 매개체)이 필요하다
+
+* 대표적인 ORM : SQLAlchemy
+
+* 파일 구조
+  app
+   |
+   |-- database.py
+   |-- main.py
+   |-- schemas.py
+   |-- models.py
+
+  main.py : 실행할 앱 파일
+  database.py : SQLAlchemy 설정
+  models.py : SQLAlchemy models
+  schemas.py : Pydantic Models
+

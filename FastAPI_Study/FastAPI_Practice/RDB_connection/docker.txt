@@ -1,0 +1,17 @@
+* docker 기본 사용법
+- docker run -d -p 80:80 docker/getting-started
+    옵션 >  -d : 백그라운드 모드, -p : 포트 외부포트:컨테이너포트
+
+- docker ps -a 와 동일한 최신 명령어
+    -> docker container ls
+
+- 설치없이 MySQL 이용하기
+    docker run --name fastapi-mysql -e MYSQL_ROOT_PASSWORD=1234 -d mysql:8.0 --character-set-server=utf8mb4 --collaction-server=utf8mb4_unicode_ci
+      옵션 > --name : 컨테이너 이름
+             -e : 환경 변수
+             -d : 백그라운드 모드(Detached mode)
+
+- MySQL 컨테이너 진입하기
+    docker exec -it fastapi-mysql mysql -uroot -p
+    Enter password : MYSQL_ROOT_PASSWORD로 지정한 패스워드 입력
+
