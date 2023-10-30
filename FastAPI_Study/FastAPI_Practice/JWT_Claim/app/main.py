@@ -7,7 +7,7 @@ from fastapi import FastAPI
 
 from common.config import conf
 from database.conn import db
-from routes import index
+from routes import index, auth
 
 
 def create_app():
@@ -27,7 +27,7 @@ def create_app():
 
     # Router define
     app.include_router(index.router)
-
+    app.include_router(auth.router, tags=["Authentication"], prefix="/auth")
     return app
 
 
