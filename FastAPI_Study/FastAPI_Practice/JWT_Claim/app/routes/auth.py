@@ -26,6 +26,13 @@ from models import SnsType, Token, UserToken, UserRegister
 9. 각 SNS 에서 Unlink
 10. 회원 탈퇴
 11. 탈퇴 회원 정보 저장 기간 동안 보유(법적 최대 한도차 내에서, 가입 때 약관 동의를 받아야 함, 재가입 방지 용도로 사용하면 가능)
+
+400 Bad Request
+401 Unauthorized
+403 Forbidden
+404 Not Found
+405 Method not support
+500 Internel error
 """
 
 router = APIRouter()
@@ -55,9 +62,21 @@ async def register(sns_type: SnsType, reg_info: UserRegister, session: Session =
     return JSONResponse(status_code=400, content=dict(msg="NOT_SUPPORTED"))
 
 
-@router.post("/login/{sns_type}", status_code=200)
+@router.post("/login/{sns_type}", status_code=201)
 async def login(sns_type: SnsType, user_info: UserRegister):
-    ...
+    if sns_type == SnsType.email:
+        is_exist = await is_email_exist(user_info.email)
+        if not user_info.email or not user_info.pw:
+            return JSONResponse(status_code=400, content=dict(msg="NO_MATCH_USER"))
+        user = Users.get(email=user_info.email)
+        is_verified = bcrypt.checkpw(
+            user_info.pw.encode("utf-8"), user.pw.encode("utf-8"))
+        if not is_verified:
+            return JSONResponse(status_code=400, content=dict(msg="NO_MATCH_USER"))
+        token = dict(
+            Authorization=f"Bearer {create_access_token(data=UserToken.model_validate(user).model_dump(exclude={'pw','marketing_agree'}),)}")
+        return token
+    return JSONResponse(status_code=400, content=dict(msg="NOT_SUPPORTED"))
 
 
 async def is_email_exist(email: str):
