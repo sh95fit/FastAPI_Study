@@ -28,11 +28,15 @@ class Config:
 class LocalConfig(Config):
     PROJ_RELOAD: bool = True
     DB_URL: str = DATABASE_URL
+    TRUSTED_HOSTS = ["*"]
+    ALLOW_SITE = ["*"]
 
 
 @dataclass
 class ProdConfig(Config):
     PROJ_RELOAD: bool = False
+    TRUSTED_HOSTS = ["*"]
+    ALLOW_SITE = ["*"]
 
 
 # 상속 테스트
