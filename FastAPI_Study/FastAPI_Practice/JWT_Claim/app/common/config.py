@@ -1,7 +1,16 @@
 from dataclasses import dataclass, asdict
 from os import path, environ
 
+import dotenv
+import os
+
 base_dir = path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
+
+dotenv_file = dotenv.find_dotenv()
+dotenv.load_dotenv(dotenv_file)
+
+# 데이터베이스 경로
+DATABASE_URL = f"mysql+pymysql://{os.environ['db_user']}:{os.environ['db_password']}@{os.environ['db_host']}:{os.environ['db_port']}/{os.environ['db_name']}"
 
 
 @dataclass    # 딕셔너리 형태로 받기 위해 활용
@@ -18,6 +27,7 @@ class Config:
 @dataclass
 class LocalConfig(Config):
     PROJ_RELOAD: bool = True
+    DB_URL: str = DATABASE_URL
 
 
 @dataclass

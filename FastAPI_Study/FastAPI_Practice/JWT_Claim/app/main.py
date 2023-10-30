@@ -1,18 +1,23 @@
 from typing import Optional
+from dataclasses import asdict
 
 import uvicorn
 
 from fastapi import FastAPI
 
-from app.common.config import conf
+from common.config import conf
+from database.conn import db
+from routes import index
 
 
 def create_app():
     """
     앱 함수 실행
     """
-
+    c = conf()
     app = FastAPI()
+    conf_dict = asdict(c)
+    db.init_app(app, **conf_dict)
 
     # database initialize
 
@@ -21,6 +26,7 @@ def create_app():
     # Middleware define
 
     # Router define
+    app.include_router(index.router)
 
     return app
 
