@@ -8,6 +8,7 @@ from starlette.requests import Request
 from database.conn import db
 from database.schema import Users
 
+from inspect import currentframe as frame
 
 router = APIRouter()
 
@@ -35,5 +36,10 @@ async def test(request: Request):
     :return:
     """
     print("state.user", request.state.user)
+    try:
+        a = 1/0
+    except Exception as e:
+        request.state.inspect = frame()
+        raise e
     current_time = datetime.utcnow()
     return Response(f"JWT Test API (UTC: {current_time.strftime('%Y.%m.%d %H:%M:%S')})")
