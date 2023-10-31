@@ -8,4 +8,4 @@ JWT_SECRET = os.environ['JWT_SECRET']
 JWT_ALGORITHM = os.environ['JWT_ALGORITHM']
 
 EXCEPT_PATH_LIST = ["/", "/openapi.json"]
-EXCEPT_PATH_REGEX = "^(/docs|/redoc|/auth)"
+EXCEPT_PATH_REGEX = "^(/docs|/redoc|/api/auth)"

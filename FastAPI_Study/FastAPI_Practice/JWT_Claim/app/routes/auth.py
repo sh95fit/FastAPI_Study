@@ -35,7 +35,7 @@ from models import SnsType, Token, UserToken, UserRegister
 500 Internel error
 """
 
-router = APIRouter()
+router = APIRouter(prefix="/auth")
 
 
 @router.post("/register/{sns_type}", status_code=200, response_model=Token)

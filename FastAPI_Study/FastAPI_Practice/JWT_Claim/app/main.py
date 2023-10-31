@@ -50,7 +50,7 @@ def create_app():
 
     # Router define
     app.include_router(index.router)
-    app.include_router(auth.router, tags=["Authentication"], prefix="/auth")
+    app.include_router(auth.router, tags=["Authentication"], prefix="/api")
     return app
 
 
