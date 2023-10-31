@@ -38,3 +38,15 @@ class UserToken(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserMe(BaseModel):
+    id: int
+    email: str = None
+    name: Optional[str] = None
+    phone_number: Optional[str] = None
+    profile_image: Optional[str] = None
+    sns_type: Optional[str] = None
+
+    class Config:
+        from_attributes = True
