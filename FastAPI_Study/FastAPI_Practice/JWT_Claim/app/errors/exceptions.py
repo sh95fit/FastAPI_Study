@@ -1,4 +1,4 @@
-from common.consts import MAX_API_KEY
+from common.consts import MAX_API_KEY, MAX_API_WHITELIST
 
 
 class StatusCode:
@@ -100,11 +100,33 @@ class MaxKeyCountEx(APIException):
         )
 
 
+class MaxWLCountEx(APIException):
+    def __init__(self, ex: Exception = None):
+        super().__init__(
+            status_code=StatusCode.HTTP_400,
+            msg=f"화이트리스트 생성은 {MAX_API_WHITELIST}개 까지 가능합니다.",
+            detail="Max Whitelist Count Reached",
+            code=f"{StatusCode.HTTP_400}{'5'.zfill(4)}",
+            ex=ex,
+        )
+
+
+class InvalidIpEx(APIException):
+    def __init__(self, ip: str, ex: Exception = None):
+        super().__init__(
+            status_code=StatusCode.HTTP_400,
+            msg=f"{ip}는 올바른 IP 가 아닙니다.",
+            detail=f"invalid IP : {ip}",
+            code=f"{StatusCode.HTTP_400}{'6'.zfill(4)}",
+            ex=ex,
+        )
+
+
 class SqlFailureEx(APIException):
     def __init__(self, ex: Exception = None):
         super().__init__(
             status_code=StatusCode.HTTP_500,
-            msg=f"이 에러는 서버측 에러입니다. 자동으로 보고되며, 빠르게 수정하겠습니다..",
+            msg=f"이 에러는 서버측 에러입니다. 자동으로 보고되며, 빠르게 수정하겠습니다.",
             detail="Internal Server Error",
             code=f"{StatusCode.HTTP_500}{'2'.zfill(4)}",
             ex=ex,

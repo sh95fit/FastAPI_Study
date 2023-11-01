@@ -16,7 +16,7 @@ from starlette.responses import JSONResponse
 # from starlette.types import ASGIApp, Receive, Scope, Send
 
 from errors import exceptions as ex
-from errors.exceptions import APIException
+from errors.exceptions import APIException, SqlFailureEx
 from common import config, consts
 # from common.config import conf
 from common.consts import EXCEPT_PATH_LIST, EXCEPT_PATH_REGEX
@@ -26,6 +26,7 @@ from models import UserToken
 from utils.date_utils import D
 from utils.logger import api_logger
 
+import sqlalchemy.exc
 
 # class AccessControl:
 #     def __init__(
@@ -140,6 +141,7 @@ from utils.logger import api_logger
 #         res = JSONResponse(status_code=error.status_code, content=error_dict)
 #         return res
 
+
 async def access_control(request: Request, call_next):
     request.state.req_time = D.datetime()
     request.state.start = time.time()
@@ -216,6 +218,8 @@ async def token_decode(access_token):
 
 # Exception의 경우 status_code가 없으므로 작성한 APIException으로 대체해주는 함수 필요 (HTTP response 방식으로 return하기 위함)
 async def exception_handler(error: Exception):
+    if isinstance(error, sqlalchemy.exc.OperationalError):
+        error = SqlFailureEx(ex=error)
     if not isinstance(error, APIException):
         error = APIException(ex=error, detail=str(error))
     return error

@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from pydantic import Field, constr
 from pydantic.main import BaseModel
-from pydantic.networks import EmailStr
+from pydantic.networks import EmailStr, IPvAnyAddress
 
 
 class UserRegister(BaseModel):
@@ -71,3 +71,14 @@ class GetApiKeyList(AddApiKey):
 
 class GetApiKeys(GetApiKeyList):
     secret_key: str = None
+
+
+class CreateAPIWhiteLists(BaseModel):
+    ip_addr: str = None
+
+
+class GetAPIWhiteLists(CreateAPIWhiteLists):
+    id: int
+
+    class Config:
+        from_attributes = True
