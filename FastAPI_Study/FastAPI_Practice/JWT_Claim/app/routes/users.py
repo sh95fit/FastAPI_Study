@@ -17,10 +17,9 @@ from errors import exceptions as ex
 
 import string
 import secrets
-from models import MessageOk
+from models import MessageOk, UserMe
 
 from errors.exceptions import NotFoundUserEx
-from models import UserMe
 
 router = APIRouter(prefix="/user")
 
@@ -104,7 +103,7 @@ async def create_api_keys(request: Request, key_info: m.AddApiKey, session: Sess
 
 
 @router.put('/apikeys/{key_id}', response_model=m.GetApiKeyList)
-async def update_api_keys(request: Request, key_id: int, key_info: m.AddApiKey, session: Session = Depends(db.session)):
+async def update_api_keys(request: Request, key_id: int, key_info: m.AddApiKey):
     """
     API KEY User Memo Update
     :param request:

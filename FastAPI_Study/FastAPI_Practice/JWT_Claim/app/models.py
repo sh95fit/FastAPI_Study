@@ -33,7 +33,7 @@ class MessageOk(BaseModel):
 
 class UserToken(BaseModel):
     id: int
-    pw: str = None
+    # pw: str = None
     email: str = None
     name: Optional[str] = None
     phone_number: Optional[str] = None

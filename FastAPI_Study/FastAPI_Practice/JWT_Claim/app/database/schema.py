@@ -57,14 +57,15 @@ class BaseMixin:
         return obj
 
     @classmethod
-    def get(cls, **kwargs) -> object:
+    def get(cls, session: Session = None, **kwargs):
         """
         Simply get a Row
+        :param session:
         :param kwargs:
         :return:
         """
-        session = next(db.session())
-        query = session.query(cls)
+        sess = next(db.session()) if not session else session
+        query = sess.query(cls)
         for key, val in kwargs.items():
             col = getattr(cls, key)
             query = query.filter(col == val)
@@ -72,7 +73,8 @@ class BaseMixin:
             raise Exception(
                 "Only one row is supposed to be returned, but got more than one.")
         result = query.first()
-        session.close()
+        if not session:
+            session.close()
         return result
 
     @classmethod
