@@ -27,6 +27,10 @@ class Token(BaseModel):
     Authorization: str = None
 
 
+class MessageOk(BaseModel):
+    message: str = Field(default="OK")
+
+
 class UserToken(BaseModel):
     id: int
     pw: str = None
@@ -50,3 +54,20 @@ class UserMe(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class AddApiKey(BaseModel):
+    user_memo: str = None
+
+    class Config:
+        from_attributes = True
+
+
+class GetApiKeyList(AddApiKey):
+    id: int = None
+    access_key: str = None
+    created_at: datetime = None
+
+
+class GetApiKeys(GetApiKeyList):
+    secret_key: str = None

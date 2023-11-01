@@ -4,20 +4,21 @@ import jwt
 
 import re
 
-from fastapi.params import Header
+# from fastapi.params import Header
 # from jwt import PyJWTError
 from jwt.exceptions import ExpiredSignatureError, DecodeError
-from pydantic import BaseModel
+# from pydantic import BaseModel
 from starlette.requests import Request
-from starlette.datastructures import URL, Headers
-from starlette.responses import JSONResponse, Response
-from starlette.responses import PlainTextResponse, RedirectResponse, Response
-from starlette.types import ASGIApp, Receive, Scope, Send
+# from starlette.datastructures import URL, Headers
+# from starlette.responses import JSONResponse, Response
+from starlette.responses import JSONResponse
+# from starlette.responses import PlainTextResponse, RedirectResponse
+# from starlette.types import ASGIApp, Receive, Scope, Send
 
 from errors import exceptions as ex
 from errors.exceptions import APIException
 from common import config, consts
-from common.config import conf
+# from common.config import conf
 from common.consts import EXCEPT_PATH_LIST, EXCEPT_PATH_REGEX
 from models import UserToken
 
@@ -152,7 +153,7 @@ async def access_control(request: Request, call_next):
     url = request.url.path
 
     if await url_pattern_check(url, EXCEPT_PATH_REGEX) or url in EXCEPT_PATH_LIST:
-        response = await call_next(request)
+        response = await call_next(request)  # 함수 실행(API) 후 api_logger 함수 실행
         if url != "/":
             await api_logger(request=request, response=response)
         return response
@@ -169,7 +170,7 @@ async def access_control(request: Request, call_next):
                     raise ex.NotAuthorized()
         else:
             # 템플릿이 렌더링인 경우 쿠키에서 토큰 검사
-            cookies["Authorization"] = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTYsImVtYWlsIjoidG9rZW5AZ2VuZXJhdGUuY29tIiwibmFtZSI6bnVsbCwicGhvbmVfbnVtYmVyIjpudWxsLCJwcm9maWxlX2ltYWdlIjpudWxsLCJzbnNfdHlwZSI6bnVsbH0.0g69LXB4Qg6fE03w6awbncGQZPa-fOqA42GQLlV64CU"
+            # cookies["Authorization"] = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTYsImVtYWlsIjoidG9rZW5AZ2VuZXJhdGUuY29tIiwibmFtZSI6bnVsbCwicGhvbmVfbnVtYmVyIjpudWxsLCJwcm9maWxlX2ltYWdlIjpudWxsLCJzbnNfdHlwZSI6bnVsbH0.0g69LXB4Qg6fE03w6awbncGQZPa-fOqA42GQLlV64CU"
 
             if "Authorization" not in cookies.keys():
                 raise ex.NotAuthorized()
@@ -213,6 +214,7 @@ async def token_decode(access_token):
     return payload
 
 
+# Exception의 경우 status_code가 없으므로 작성한 APIException으로 대체해주는 함수 필요 (HTTP response 방식으로 return하기 위함)
 async def exception_handler(error: Exception):
     if not isinstance(error, APIException):
         error = APIException(ex=error, detail=str(error))

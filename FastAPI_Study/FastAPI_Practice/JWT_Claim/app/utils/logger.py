@@ -4,6 +4,7 @@ from datetime import timedelta, datetime
 from time import time
 from fastapi.requests import Request
 
+from fastapi import Body
 from fastapi.logger import logger
 
 logger.setLevel(logging.INFO)
@@ -15,7 +16,7 @@ async def api_logger(request: Request, response=None, error=None):
     status_code = error.status_code if error else response.status_code
     error_log = None
     user = request.state.user
-    body = await request.body()
+    # body = await request.body()   # FastAPI는 들어온 body를 consume하는 개념으로 api 레벨에서는 사용할 수 없다
     if error:
         if request.state.inspect:
             frame = request.state.inspect
@@ -48,11 +49,11 @@ async def api_logger(request: Request, response=None, error=None):
         client=user_log,
         processedTime=str(round(t * 1000, 5)) + "ms",
         datetimeUTC=datetime.utcnow().strftime(time_format),
-        datetimeKR=(datetime.utcnow() + timedelta(hours=9)
-                    ).strftime(time_format),
+        datetimeKST=(datetime.utcnow() + timedelta(hours=9)
+                     ).strftime(time_format),
     )
-    if body:
-        log_dict["body"] = body
+    # if body:
+    #     log_dict["body"] = body
     if error and error.status_code >= 500:
         logger.error(json.dumps(log_dict))
     else:
