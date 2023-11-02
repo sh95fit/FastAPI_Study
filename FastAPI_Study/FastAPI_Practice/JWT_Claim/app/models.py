@@ -27,6 +27,15 @@ class Token(BaseModel):
     Authorization: str = None
 
 
+class EmailRecipients(BaseModel):
+    name: str
+    email: str
+
+
+class SendEmail(BaseModel):
+    email_to: List[EmailRecipients] = None
+
+
 class KakaoMsgBody(BaseModel):
     msg: str = None
 
