@@ -22,6 +22,7 @@ class Config:
 
     DB_POOL_RECYCLE: int = 900
     DB_ECHO: bool = True
+    DEBUG = False
 
 
 @dataclass
@@ -30,6 +31,7 @@ class LocalConfig(Config):
     DB_URL: str = DATABASE_URL
     TRUSTED_HOSTS = ["*"]
     ALLOW_SITE = ["*"]
+    DEBUG = True
 
 
 @dataclass
@@ -37,6 +39,7 @@ class ProdConfig(Config):
     PROJ_RELOAD: bool = False
     TRUSTED_HOSTS = ["*"]
     ALLOW_SITE = ["*"]
+    # DEBUG = False
 
 
 # 상속 테스트

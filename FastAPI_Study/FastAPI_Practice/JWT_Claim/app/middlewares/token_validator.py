@@ -179,41 +179,96 @@ async def access_control(request: Request, call_next):
             if url.startswith("/api/services"):
                 qs = str(request.query_params)
                 qs_list = qs.split("&")
-
-                try:
-                    qs_dict = {qs_split.split("=")[0]: qs_split.split("=")[
-                        1] for qs_split in qs_list}
-                except Exception:
-                    raise ex.APIQueryStringEx()
-
-                qs_keys = qs_dict.keys()
-                if "key" not in qs_keys or "timestamp" not in qs_keys:
-                    raise ex.APIQueryStringEx()
-
-                if "secret" not in headers.keys():
-                    raise ex.APIHeaderInvalidEx()
-
                 session = next(db.session())
-                api_key = ApiKeys.get(
-                    session=session, access_key=qs_dict["key"])
-                if not api_key:
-                    raise ex.NotFoundAccessKeyEx(api_key=qs_dict["key"])
-                mac = hmac.new(bytes(api_key.secret_key, encoding='utf8'), bytes(
-                    qs, encoding='utf-8'), digestmod='sha256')
-                d = mac.digest()
-                validating_secret = str(base64.b64encode(d).decode('utf-8'))
 
-                if headers["secret"] != validating_secret:
-                    raise ex.APIHeaderInvalidEx()
+                if not config.conf().DEBUG:
+                    try:
+                        qs_dict = {qs_split.split("=")[0]: qs_split.split("=")[
+                            1] for qs_split in qs_list}
+                    except Exception:
+                        raise ex.APIQueryStringEx()
 
-                now_timestamp = int(D.datetime(diff=9).timestamp())
+                    qs_keys = qs_dict.keys()
 
-                if now_timestamp - 10 > int(qs_dict["timestamp"]) or now_timestamp < int(qs_dict["timestamp"]):
-                    raise ex.APITimestampEx()
+                    if "key" not in qs_keys or "timestamp" not in qs_keys:
+                        raise ex.APIQueryStringEx()
 
-                user_info = to_dict(api_key.users)
-                request.state.user = UserToken(**user_info)
+                    if "secret" not in headers.keys():
+                        raise ex.APIHeaderInvalidEx()
+
+                    # session = next(db.session())
+                    api_key = ApiKeys.get(
+                        session=session, access_key=qs_dict["key"])
+
+                    if not api_key:
+                        raise ex.NotFoundAccessKeyEx(api_key=qs_dict["key"])
+                    mac = hmac.new(bytes(api_key.secret_key, encoding='utf8'), bytes(
+                        qs, encoding='utf-8'), digestmod='sha256')
+                    d = mac.digest()
+                    validating_secret = str(
+                        base64.b64encode(d).decode('utf-8'))
+
+                    if headers["secret"] != validating_secret:
+                        raise ex.APIHeaderInvalidEx()
+
+                    now_timestamp = int(D.datetime(diff=9).timestamp())
+                    if now_timestamp - 10 > int(qs_dict["timestamp"]) or now_timestamp < int(qs_dict["timestamp"]):
+                        raise ex.APITimestampEx()
+
+                    user_info = to_dict(api_key.users)
+                    request.state.user = UserToken(**user_info)
+
+                else:
+                    # Request User 가 필요함
+                    if "authorization" in headers.keys():
+                        key = headers.get("Authorization")
+                        api_key_obj = ApiKeys.get(
+                            session=session, access_key=key)
+                        user_info = to_dict(
+                            Users.get(session=session, id=api_key_obj.user_id))
+                        request.state.user = UserToken(**user_info)
+                        # 토큰 없음
+                    else:
+                        if "Authorization" not in headers.keys():
+                            raise ex.NotAuthorized()
+
                 session.close()
+
+                # try:
+                #     qs_dict = {qs_split.split("=")[0]: qs_split.split("=")[
+                #         1] for qs_split in qs_list}
+                # except Exception:
+                #     raise ex.APIQueryStringEx()
+                #
+                # qs_keys = qs_dict.keys()
+                # if "key" not in qs_keys or "timestamp" not in qs_keys:
+                #     raise ex.APIQueryStringEx()
+
+                # if "secret" not in headers.keys():
+                #     raise ex.APIHeaderInvalidEx()
+
+                # session = next(db.session())
+                # api_key = ApiKeys.get(
+                #     session=session, access_key=qs_dict["key"])
+                # if not api_key:
+                #     raise ex.NotFoundAccessKeyEx(api_key=qs_dict["key"])
+                # mac = hmac.new(bytes(api_key.secret_key, encoding='utf8'), bytes(
+                #     qs, encoding='utf-8'), digestmod='sha256')
+                # d = mac.digest()
+                # validating_secret = str(base64.b64encode(d).decode('utf-8'))
+
+                # if headers["secret"] != validating_secret:
+                #     raise ex.APIHeaderInvalidEx()
+
+                # now_timestamp = int(D.datetime(diff=9).timestamp())
+
+                # if now_timestamp - 10 > int(qs_dict["timestamp"]) or now_timestamp < int(qs_dict["timestamp"]):
+                #     raise ex.APITimestampEx()
+
+                # user_info = to_dict(api_key.users)
+                # request.state.user = UserToken(**user_info)
+                # session.close()
+
                 response = await call_next(request)
                 return response
             else:
@@ -276,6 +331,7 @@ async def token_decode(access_token):
 
 # Exception의 경우 status_code가 없으므로 작성한 APIException으로 대체해주는 함수 필요 (HTTP response 방식으로 return하기 위함)
 async def exception_handler(error: Exception):
+    print(error)
     if isinstance(error, sqlalchemy.exc.OperationalError):
         error = SqlFailureEx(ex=error)
     if not isinstance(error, APIException):

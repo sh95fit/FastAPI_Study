@@ -175,3 +175,14 @@ class NotFoundAccessKeyEx(APIException):
             code=f"{StatusCode.HTTP_404}{'10'.zfill(4)}",
             ex=ex,
         )
+
+
+class KakaoSendFailureEx(APIException):
+    def __init__(self, ex: Exception = None):
+        super().__init__(
+            status_code=StatusCode.HTTP_400,
+            msg=f"카카오톡 전송에 실패했습니다.",
+            detail=f"Failed to send KAKAO MSG.",
+            code=f"{StatusCode.HTTP_400}{'11'.zfill(4)}",
+            ex=ex,
+        )
