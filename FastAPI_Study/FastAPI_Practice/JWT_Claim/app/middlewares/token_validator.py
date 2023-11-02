@@ -192,6 +192,7 @@ async def access_control(request: Request, call_next):
 
                 if "secret" not in headers.keys():
                     raise ex.APIHeaderInvalidEx()
+
                 session = next(db.session())
                 api_key = ApiKeys.get(
                     session=session, access_key=qs_dict["key"])
@@ -206,6 +207,7 @@ async def access_control(request: Request, call_next):
                     raise ex.APIHeaderInvalidEx()
 
                 now_timestamp = int(D.datetime(diff=9).timestamp())
+
                 if now_timestamp - 10 > int(qs_dict["timestamp"]) or now_timestamp < int(qs_dict["timestamp"]):
                     raise ex.APITimestampEx()
 

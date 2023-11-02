@@ -21,14 +21,14 @@ def hash_string(qs, secret_key):
 
 
 def sample_request():
-    access_key = "c0883231-4aa9-4a1f-a77b-3ef250af-e449-42e9-856a-b3ada17c426b"
-    secret_key = "QhOaeXTAAkW6yWt31jWDeERkBsZ3X4UmPds656YD"
+    access_key = "3de14228-e1b0-4858-9515-95d137cf-e9bf-4409-8105-6a074c131db7"
+    secret_key = "3kAIBXmhCJ5k3XVLSYcaAS45m2uUCW5gIWkiw8Pl"
     cur_time = datetime.utcnow()+timedelta(hours=9)
     cur_timestamp = int(cur_time.timestamp())
     qs = dict(key=access_key, timestamp=cur_timestamp)
     header_secret = hash_string(parse_params_to_str(qs), secret_key)
 
-    url = f"http://127.0.0.1:8080/api/services?{parse_params_to_str(qs)}"
+    url = f"http://127.0.0.1:8000/api/services?{parse_params_to_str(qs)}"
     res = requests.get(url, headers=dict(secret=header_secret))
     return res
 
