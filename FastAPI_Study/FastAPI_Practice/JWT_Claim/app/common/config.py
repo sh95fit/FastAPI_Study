@@ -1,5 +1,6 @@
 from dataclasses import dataclass, asdict
 from os import path, environ
+from typing import List
 
 import dotenv
 import os
@@ -18,11 +19,12 @@ class Config:
     """
     기본 Configuration
     """
-    BASE_DIR = base_dir
+    BASE_DIR: str = base_dir
 
     DB_POOL_RECYCLE: int = 900
     DB_ECHO: bool = True
-    DEBUG = False
+    DEBUG: bool = False
+    TEST_MODE: bool = False
 
 
 @dataclass
@@ -31,16 +33,24 @@ class LocalConfig(Config):
     DB_URL: str = DATABASE_URL
     TRUSTED_HOSTS = ["*"]
     ALLOW_SITE = ["*"]
-    DEBUG = True
+    DEBUG: bool = True
 
 
 @dataclass
 class ProdConfig(Config):
-    PROJ_RELOAD: bool = False
+    DB_URL: str = DATABASE_URL
+    # PROJ_RELOAD: bool = False
     TRUSTED_HOSTS = ["*"]
     ALLOW_SITE = ["*"]
     # DEBUG = False
 
+
+@dataclass
+class TestConfig(Config):
+    DB_URL: str = DATABASE_URL
+    TRUSTED_HOSTS = ["*"]
+    ALLOW_SITE = ["*"]
+    TEST_MODE: bool = True
 
 # 상속 테스트
 
@@ -58,5 +68,5 @@ def conf():
     환경 불러오기
     :return:
     """
-    config = dict(prod=ProdConfig(), local=LocalConfig())
-    return config.get(environ.get("API_ENV", "local"))
+    config = dict(prod=ProdConfig, local=LocalConfig, test=TestConfig)
+    return config[environ.get("API_ENV", "local")]()
