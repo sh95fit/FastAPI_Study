@@ -7,6 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from database.schema import Users
 from database.conn import db, Base
@@ -62,9 +63,9 @@ def login(session):
 
 
 def clear_all_table_data(session: Session, metadata, except_tables: List[str] = None):
-    session.execute("SET FOREIGN_KEY_CHECKS = 0;")
+    session.execute(text("SET FOREIGN_KEY_CHECKS = 0;"))
     for table in metadata.sorted_tables:
         if table.name not in except_tables:
             session.execute(table.delete())
-    session.execute("SET FOREIGN_KEY_CHECKS = 1;")
+    session.execute(text("SET FOREIGN_KEY_CHECKS = 1;"))
     session.commit()

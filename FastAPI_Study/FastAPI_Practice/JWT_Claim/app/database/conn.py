@@ -1,14 +1,17 @@
 from fastapi import FastAPI
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 import logging
 
+import os
+
 
 def _database_exist(engine, schema_name):
-    query = f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{schema_name}'"
+    query = text(
+        f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{schema_name}'")
     with engine.connect() as conn:
         result_proxy = conn.execute(query)
         result = result_proxy.scalar()
@@ -17,13 +20,13 @@ def _database_exist(engine, schema_name):
 
 def _drop_database(engine, schema_name):
     with engine.connect() as conn:
-        conn.execute(f"DROP DATABASE {schema_name};")
+        conn.execute(text(f"DROP DATABASE {schema_name};"))
 
 
 def _create_database(engine, schema_name):
     with engine.connect() as conn:
         conn.execute(
-            f"CREATE DATABASE {schema_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;")
+            text(f"CREATE DATABASE {schema_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;"))
 
 
 class SQLALchemy:
@@ -54,10 +57,10 @@ class SQLALchemy:
 
         if is_testing:
             db_url = self._engine.url
-            if db_url.host != "localhost":
+            if db_url.host != os.environ['db_host']:
                 raise Exception(
                     "db host must be 'localhost' in test environment")
-            except_schema_db_url = f"{db_url.drivername}://{db_url.username}@{db_url.host}"
+            except_schema_db_url = f"mysql+pymysql://{os.environ['db_user']}:{os.environ['db_password']}@{os.environ['db_host']}:{os.environ['db_port']}/{os.environ['db_name']}"
             schema_name = db_url.database
             temp_engine = create_engine(
                 except_schema_db_url, echo=echo, pool_recycle=pool_recycle, pool_pre_ping=True)
@@ -65,8 +68,6 @@ class SQLALchemy:
                 _drop_database(temp_engine, schema_name)
             _create_database(temp_engine, schema_name)
             temp_engine.dispose()
-        self._session = sessionmaker(
-            autocommit=False, autoflush=False, bind=self._engine)
 
         self._session = sessionmaker(
             autocommit=False, autoflush=False, bind=self._engine)

@@ -32,7 +32,7 @@ async def index(session: Session = Depends(db.session),):
 @router.get("/test")
 async def test(request: Request):
     """
-    ELB 상태 체크용 몌ㅑ
+    ELB 상태 체크용 API
     :return:
     """
     print("state.user", request.state.user)
