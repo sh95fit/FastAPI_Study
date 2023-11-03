@@ -161,6 +161,7 @@ async def access_control(request: Request, call_next):
     request.state.ip = ip.split(",")[0] if "," in ip else ip
     headers = request.headers
     cookies = request.cookies
+
     url = request.url.path
 
     if await url_pattern_check(url, EXCEPT_PATH_REGEX) or url in EXCEPT_PATH_LIST:
@@ -275,7 +276,7 @@ async def access_control(request: Request, call_next):
                 # if "Authorization" not in headers.keys():
                 #     raise ex.NotAuthorized()
 
-                if "Authorization" in headers.keys():
+                if "authorization" in headers.keys():
                     token_info = await token_decode(access_token=headers.get("Authorization"))
                     request.state.user = UserToken(**token_info)
                     # 토큰 없음
